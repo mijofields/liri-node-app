@@ -5,5 +5,9 @@ var request = require('request'); // request
 var keys = require("./keys.js") //keys info
 
 
+var spotify = new Spotify(keys.spotify);
+var client = new Twitter(keys.twitter);
+
+
 
 //http://www.omdbapi.com/?i=tt3896198&apikey=5ada800f /OMDB key
