@@ -1,13 +1,261 @@
-require("dotenv").config();  //detenv configure
+// require("dotenv").config();  //detenv configure
 var Twitter = require('twitter'); //twitter API
 var Spotify = require('node-spotify-api'); // Spotify API
 var request = require('request'); // request
 var keys = require("./keys.js") //keys info
-
+var fs = require('fs');
 
 var spotify = new Spotify(keys.spotify);
 var client = new Twitter(keys.twitter);
 
+var action = process.argv[2];
+var subjectArr = []; //allow for mutli word subjects to be return as the searches require
+
+for (var i = 3 ; i < process.argv.length; i++ ) { // start from i=3 
+
+subjectArr.push(process.argv[i]);
+
+}; //end of for loop
+
+var query = subjectArr.join("+");
+// console.log("query: " + query);
 
 
-//http://www.omdbapi.com/?i=tt3896198&apikey=5ada800f /OMDB key
+switch (action) {
+  case "my-tweets":
+    twitter();
+    break;
+
+  case "spotify-this-song":
+
+  	if (query) {
+
+  		song(query);  //if a search query is entered complete the search on the parameter
+  		break;
+
+  	} else {
+
+
+  		song("The Sign");  //if no search query is entered return The Sign
+  		break;
+
+  	};
+   
+    
+
+  case "movie-this":
+
+  	if (query) {
+
+  		movie(query);
+  		break;
+
+  	} else {
+
+  		movie('Mr. Nobody');
+  		break;
+
+  	};
+    
+
+  case "do-what-it-says":
+    console.log("'do-what-it-says' called");
+    break;
+
+  default:
+  console.log("Please enter a valid command");
+  console.log("-----------------------");
+  console.log("'movie-this' <movie name>");
+  console.log("'spotify-this-song' <song name>");
+  console.log("'my-tweets'");
+  break; 
+
+
+				}; //end of switch
+
+
+
+
+function movie (query) {
+
+
+	request("http://www.omdbapi.com/?t="+ query + "&plot=short&apikey=5ada800f", function(error, response, body) {
+
+
+  if (!error) {
+
+    console.log(JSON.parse(body).Title);
+      // fs.appendFile('lirilog.txt', JSON.parse(body).Title + '\n');
+    console.log("Released on " + JSON.parse(body).Released);
+      // fs.appendFile('lirilog.txt', "Released on " + JSON.parse(body).Released + '\n');
+    console.log("IMDB Rating: " + JSON.parse(body).Ratings[0].Value);
+      // fs.appendFile('lirilog.txt', "IMDB Rating: " + JSON.parse(body).Ratings[0].Value + '\n');
+    console.log("Rotten Tomatoes Rating: " + JSON.parse(body).Ratings[1].Value);
+      // fs.appendFile('lirilog.txt', "Rotten Tomatoes Rating: " + JSON.parse(body).Ratings[1].Value + '\n');
+    console.log("Produced in " + JSON.parse(body).Country);
+      // fs.appendFile('lirilog.txt', "Produced in " + JSON.parse(body).Country + '\n');
+    console.log("Language: " + JSON.parse(body).Language);
+      // fs.appendFile('lirilog.txt', "Language: " + JSON.parse(body).Language + '\n');
+    console.log("Actors: " + JSON.parse(body).Actors);
+      // fs.appendFile('lirilog.txt', "Actors: " + JSON.parse(body).Actors + '\n');
+    console.log(JSON.parse(body).Plot);
+      // fs.appendFile('lirilog.txt', JSON.parse(body).Plot + '\n');
+    console.log("-------------------------------------------");
+      // fs.appendFile('lirilog.txt', "-------------------------------------------" + '\n');
+
+      dataToAdd = JSON.parse(body).Title + '\n' + "Released on " + JSON.parse(body).Released + '\n' + "IMDB Rating: " + JSON.parse(body).Ratings[0].Value + '\n'
+      + "Rotten Tomatoes Rating: " + JSON.parse(body).Ratings[1].Value + '\n' + "Produced in " + JSON.parse(body).Country + '\n' + "Language: " + JSON.parse(body).Language + '\n'
+      + "Actors: " + JSON.parse(body).Actors + '\n' + JSON.parse(body).Plot + '\n' + "-------------------------------------------" + '\n';
+
+      fs.appendFile('lirilog.txt', dataToAdd, function(err) {
+
+  // If an error was experienced we say it.
+  if (err) {
+    console.log(err);
+  }
+
+  // If no error is experienced, we'll log the phrase "Content Added" to our node console.
+  else {
+    console.log("Content Added to Log File!");
+  }
+
+});
+
+
+
+
+
+} else {
+
+
+console.log("There was an error with your choice, please try again...");
+dataToAdd = "There was an error with your choice, please try again...";
+
+fs.appendFile('lirilog.txt', dataToAdd, function(err) {
+
+  // If an error was experienced we say it.
+  if (err) {
+    console.log(err);
+  }
+
+  // If no error is experienced, we'll log the phrase "Content Added" to our node console.
+  else {
+    console.log("Error Added to Log File!");
+  }
+
+});
+
+
+
+}; // end of else
+
+}); //end of request
+
+}; //end of movie
+
+
+
+function song (query) {
+
+
+spotify.search({ type: 'track', query:query }, function(err, data) {
+  if (err) {
+
+    return console.log('Error occurred: ' + err);
+    dataToAdd = 'Error occurred: ' + err;
+    fs.appendFile('lirilog.txt', dataToAdd, function(err) {
+
+  // If an error was experienced we say it.
+  if (err) {
+    console.log(err);
+  }
+
+  // If no error is experienced, we'll log the phrase "Content Added" to our node console.
+  else {
+    console.log("Error Added to Log File!");
+  }
+
+});
+
+
+
+  }
+
+
+    for(var i = 0; i < data.tracks.items.length; i++){
+        var songData = data.tracks.items[i];
+        //artist
+        console.log("Artist: " + songData.artists[0].name);
+        //song name
+        console.log("Song: " + songData.name);
+        //spotify preview link
+        console.log("Preview URL: " + songData.preview_url);
+        //album name
+        console.log("Album: " + songData.album.name);
+        console.log("-----------------------");
+
+
+        dataToAdd = "Artist: " + songData.artists[0].name + '\n' + "Song: " + songData.name + '\n' + "Preview URL: " + songData.preview_url + '\n'
+        + "Album: " + songData.album.name + '\n'  + "-----------------------" + '\n';
+
+        fs.appendFile('lirilog.txt', dataToAdd, function(err) {
+
+  // If an error was experienced we say it.
+  if (err) {
+    console.log(err);
+  }
+
+  // If no error is experienced, we'll log the phrase "Content Added" to our node console.
+  else {
+    console.log("Content Added to Log File!");
+  }
+
+});
+
+    } //end of for
+
+
+
+});
+
+
+
+
+
+}; //end of song
+
+
+function twitter () {
+
+  var params = {screen_name: 'cryplife101'};
+
+
+  	client.get('statuses/user_timeline', params, function(error, tweets, response){
+
+    if(!error){
+
+      for(var i = 0; i<tweets.length; i++){
+        var date = tweets[i].created_at;
+        console.log("@cryplife101: " + tweets[i].text + " Created At: " + date.substring(0, 19));
+        console.log("-----------------------");
+
+
+}//end of for loop
+
+} else { 
+
+
+console.log("Sorry, there was an error");
+console.log(JSON.stringify(error));
+
+
+};
+
+}); //end of get
+	
+
+
+
+
+
+}; //end of tweets
