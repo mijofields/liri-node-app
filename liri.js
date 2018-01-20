@@ -1,13 +1,15 @@
-require("dotenv").config();  //detenv configure
+require("dotenv").config();  //dotenv configure
 var Twitter = require('twitter'); //twitter API
 var Spotify = require('node-spotify-api'); // Spotify API
 var request = require('request'); // request
 var keys = require("./keys.js") //keys info
 var fs = require('fs'); //file system
 var moment = require('moment'); // moment
-var now = moment().format("MMMM Do YYYY, H:mm:ss");
+var now = moment().format("MMMM Do YYYY, H:mm:ss"); //immutable = good times
 var spotify = new Spotify(keys.spotify);
 var client = new Twitter(keys.twitter);
+
+console.log(client);
 
 var action = process.argv[2];
 var subjectArr = []; //allow for mutli word subjects to be return as the searches require
@@ -88,23 +90,23 @@ function movie (query) {
   if (!error) {
 
     console.log(JSON.parse(body).Title);
-      // fs.appendFile('lirilog.txt', JSON.parse(body).Title + '\n');
+
     console.log("Released on " + JSON.parse(body).Released);
-      // fs.appendFile('lirilog.txt', "Released on " + JSON.parse(body).Released + '\n');
+
     console.log("IMDB Rating: " + JSON.parse(body).Ratings[0].Value);
-      // fs.appendFile('lirilog.txt', "IMDB Rating: " + JSON.parse(body).Ratings[0].Value + '\n');
+
     console.log("Rotten Tomatoes Rating: " + JSON.parse(body).Ratings[1].Value);
-      // fs.appendFile('lirilog.txt', "Rotten Tomatoes Rating: " + JSON.parse(body).Ratings[1].Value + '\n');
+
     console.log("Produced in " + JSON.parse(body).Country);
-      // fs.appendFile('lirilog.txt', "Produced in " + JSON.parse(body).Country + '\n');
+
     console.log("Language: " + JSON.parse(body).Language);
-      // fs.appendFile('lirilog.txt', "Language: " + JSON.parse(body).Language + '\n');
+
     console.log("Actors: " + JSON.parse(body).Actors);
-      // fs.appendFile('lirilog.txt', "Actors: " + JSON.parse(body).Actors + '\n');
+
     console.log(JSON.parse(body).Plot);
-      // fs.appendFile('lirilog.txt', JSON.parse(body).Plot + '\n');
+
     console.log("-------------------------------------------");
-      // fs.appendFile('lirilog.txt', "-------------------------------------------" + '\n');
+
 
       dataToAdd = JSON.parse(body).Title + '\n' + "Released on " + JSON.parse(body).Released + '\n' + "IMDB Rating: " + JSON.parse(body).Ratings[0].Value + '\n'
       + "Rotten Tomatoes Rating: " + JSON.parse(body).Ratings[1].Value + '\n' + "Produced in " + JSON.parse(body).Country + '\n' + "Language: " + JSON.parse(body).Language + '\n'
