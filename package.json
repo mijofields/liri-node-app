@@ -17,8 +17,9 @@
   },
   "homepage": "https://github.com/mijofields/liri-node-app#readme",
   "dependencies": {
-    "node-spotify-api": "^1.0.7",
     "dotenv": "^4.0.0",
+    "moment": "^2.20.1",
+    "node-spotify-api": "^1.0.7",
     "request": "^2.83.0",
     "twitter": "^1.7.1"
   }

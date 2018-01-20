@@ -4,7 +4,8 @@ var Spotify = require('node-spotify-api'); // Spotify API
 var request = require('request'); // request
 var keys = require("./keys.js") //keys info
 var fs = require('fs'); //file system
-
+var moment = require('moment'); // moment
+var now = moment().format("MMMM Do YYYY, H:mm:ss");
 var spotify = new Spotify(keys.spotify);
 var client = new Twitter(keys.twitter);
 
@@ -64,7 +65,7 @@ switch (action) {
 
   
   default:
-  console.log("Please enter a valid command");
+  console.log("Please enter a valid command, either:");
   console.log("'movie-this' <movie name>");
   console.log("'spotify-this-song' <song name>");
   console.log("'my-tweets'");
@@ -107,7 +108,8 @@ function movie (query) {
 
       dataToAdd = JSON.parse(body).Title + '\n' + "Released on " + JSON.parse(body).Released + '\n' + "IMDB Rating: " + JSON.parse(body).Ratings[0].Value + '\n'
       + "Rotten Tomatoes Rating: " + JSON.parse(body).Ratings[1].Value + '\n' + "Produced in " + JSON.parse(body).Country + '\n' + "Language: " + JSON.parse(body).Language + '\n'
-      + "Actors: " + JSON.parse(body).Actors + '\n' + JSON.parse(body).Plot + '\n' + "-------------------------------------------" + '\n';
+      + "Actors: " + JSON.parse(body).Actors + '\n' + JSON.parse(body).Plot + '\n' + now + '\n' + "-------------------------------------------" + '\n';
+
 
       fs.appendFile('lirilog.txt', dataToAdd, function(err) {
 
@@ -202,7 +204,7 @@ spotify.search({ type: 'track', query:query }, function(err, data) {
 
 
         dataToAdd = "Artist: " + songData.artists[0].name + '\n' + "Song: " + songData.name + '\n' + "Preview URL: " + songData.preview_url + '\n'
-        + "Album: " + songData.album.name + '\n'  + "-----------------------" + '\n';
+        + "Album: " + songData.album.name + '\n' + "-----------------------" + '\n' + now + '\n';
 
         fs.appendFile('lirilog.txt', dataToAdd, function(err) {
 
@@ -257,7 +259,7 @@ function twitter () {
         console.log("-----------------------");
 
 
-        dataToAdd = "@cryplife101: " + tweets[i].text + " Created At: " + date.substring(0, 19) + '\n' + "-----------------------" + '\n';
+        dataToAdd = "@cryplife101: " + tweets[i].text + " Created At: " + date.substring(0, 19) + '\n' + now + '\n' +  "-----------------------" + '\n';
 
         fs.appendFile('lirilog.txt', dataToAdd, function(err) {
 
