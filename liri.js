@@ -1,9 +1,9 @@
-// require("dotenv").config();  //detenv configure
+require("dotenv").config();  //detenv configure
 var Twitter = require('twitter'); //twitter API
 var Spotify = require('node-spotify-api'); // Spotify API
 var request = require('request'); // request
 var keys = require("./keys.js") //keys info
-var fs = require('fs');
+var fs = require('fs'); //file system
 
 var spotify = new Spotify(keys.spotify);
 var client = new Twitter(keys.twitter);
@@ -11,15 +11,16 @@ var client = new Twitter(keys.twitter);
 var action = process.argv[2];
 var subjectArr = []; //allow for mutli word subjects to be return as the searches require
 
-for (var i = 3 ; i < process.argv.length; i++ ) { // start from i=3 
+for (var i = 3 ; i < process.argv.length; i++ ) { // start from after the commands 
 
 subjectArr.push(process.argv[i]);
 
 }; //end of for loop
 
 var query = subjectArr.join("+");
-// console.log("query: " + query);
 
+
+function switchAction (action, query) {
 
 switch (action) {
   case "my-tweets":
@@ -36,11 +37,10 @@ switch (action) {
   	} else {
 
 
-  		song("The Sign");  //if no search query is entered return The Sign
+  		song("The Sign");  //if no search query is entered return a search on The Sign
   		break;
 
-  	};
-   
+  	};   
     
 
   case "movie-this":
@@ -59,20 +59,22 @@ switch (action) {
     
 
   case "do-what-it-says":
-    console.log("'do-what-it-says' called");
+    random();
     break;
 
+  
   default:
   console.log("Please enter a valid command");
-  console.log("-----------------------");
   console.log("'movie-this' <movie name>");
   console.log("'spotify-this-song' <song name>");
   console.log("'my-tweets'");
+  console.log("'do-what-it-says'");
+  console.log("-----------------------");
   break; 
 
 
 				}; //end of switch
-
+        } //end of swithAction function
 
 
 
@@ -158,6 +160,7 @@ fs.appendFile('lirilog.txt', dataToAdd, function(err) {
 function song (query) {
 
 
+
 spotify.search({ type: 'track', query:query }, function(err, data) {
   if (err) {
 
@@ -181,8 +184,11 @@ spotify.search({ type: 'track', query:query }, function(err, data) {
 
   }
 
+    contentAdd = false; //stop content notification repeating
 
     for(var i = 0; i < data.tracks.items.length; i++){
+
+
         var songData = data.tracks.items[i];
         //artist
         console.log("Artist: " + songData.artists[0].name);
@@ -206,8 +212,16 @@ spotify.search({ type: 'track', query:query }, function(err, data) {
   }
 
   // If no error is experienced, we'll log the phrase "Content Added" to our node console.
-  else {
+  else if (contentAdd === false) {
+
     console.log("Content Added to Log File!");
+    contentAdd = true;
+    //so this notification only comes once
+
+  } else {
+ 
+ //do nothing
+
   }
 
 });
@@ -227,6 +241,9 @@ spotify.search({ type: 'track', query:query }, function(err, data) {
 
 function twitter () {
 
+
+  contentAdd = false;
+
   var params = {screen_name: 'cryplife101'};
 
 
@@ -238,6 +255,31 @@ function twitter () {
         var date = tweets[i].created_at;
         console.log("@cryplife101: " + tweets[i].text + " Created At: " + date.substring(0, 19));
         console.log("-----------------------");
+
+
+        dataToAdd = "@cryplife101: " + tweets[i].text + " Created At: " + date.substring(0, 19) + '\n' + "-----------------------" + '\n';
+
+        fs.appendFile('lirilog.txt', dataToAdd, function(err) {
+
+  // If an error was experienced we say it.
+  if (err) {
+    console.log(err);
+  }
+
+  // If no error is experienced, we'll log the phrase "Content Added" to our node console.
+  else if (contentAdd === false) {
+
+    console.log("Content Added to Log File!");
+    contentAdd = true;
+    //so this notification only comes once
+
+  } else {
+ 
+ //do nothing
+
+  }
+
+});
 
 
 }//end of for loop
@@ -258,4 +300,55 @@ console.log(JSON.stringify(error));
 
 
 
-}; //end of tweets
+}; //end of twitter
+
+
+
+function random ()  {
+
+fs.readFile('random.txt', "utf8", function(error, data){
+
+if(error) {
+
+console.log(error);
+
+} else {
+
+// console.log(data);
+var random = data.split(',');
+// console.log(random);
+
+switchAction(random[0], random[1]);
+
+// console.log("$ node liri.js " + random[0] + " " +  random[1]);
+
+
+
+
+}; //end of else
+
+
+    
+
+
+
+
+}); //end of readfile
+
+}; //end of random
+
+
+
+
+function fileWork (one, two){
+
+
+switchAction(one, two);
+
+
+
+};
+
+
+
+switchAction(action, query);
